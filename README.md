@@ -1,5 +1,5 @@
-Pure Lua classes with multiple inheritance.
-===========================================
+Pure Lua OOP with multiple inheritance
+======================================
 
 Use `T = Base:extend(Mixin1, Mixin2, ...)` to create subclasses,
 `T()` or `T{attribute1=1, attribute2=2, ...}` to create instances,
@@ -7,7 +7,10 @@ and `object:is_a(MyClass)` to test instance typing. Mixins can be
 other classes or plain Lua tables, their attributes are shallowly
 copied to the new class. Initializers are optional and defined by
 an `__init` function, and you can access the superclass of an 
-instance with `object.super`.
+instance with `object.super`. If the initializer is called with a
+single table as the first parameter, the table contents are used
+to initialize the object, otherwise all parameters are passed to
+`T.__init`.
 
 Note that you can change attributes and methods after subclassing,
 and it is possible inherit from instances (prototypes a la JS).
@@ -52,15 +55,15 @@ Example usage:
 	c:print()  -- Automobile: Honda CG 200\nWheels: 2
 	= c.fueled -- true
 
-	= a:is_a(Product)       -- true
-	= a:is_a(Automobile)    -- true
-	= a:is_a(Bicycle)       -- false
-	= a:is_a(Motorcycle)    -- false
+	= a:is_a(Product)     -- true
+	= a:is_a(Automobile)  -- true
+	= a:is_a(Bicycle)     -- false
+	= a:is_a(Motorcycle)  -- false
 
-	= b:is_a(Product)      -- true
-	= b:is_a(Automobile)   -- false
-	= b:is_a(Bicycle)      -- true
-	= b:is_a(Motorcycle)   -- false
+	= b:is_a(Product)     -- true
+	= b:is_a(Automobile)  -- false
+	= b:is_a(Bicycle)     -- true
+	= b:is_a(Motorcycle)  -- false
 
 	= c:is_a(Product)     -- true
 	= c:is_a(Automobile)  -- true
@@ -69,9 +72,9 @@ Example usage:
 ```
 
 There are other interesting alternatives in luarocks, so I have
-microbenchmarked them all. This test does NOT represent an 
+(micro)benchmarked them all. This test does NOT represent an 
 real-world class hierarchy, but helps to compare some of the
-library overhead and therefore helped me to improve lua-oo.
+library overhead and therefore helped me to improve `lua-oo`.
 Anyway, the test is something like:
 
 ```lua
@@ -102,18 +105,28 @@ print(n, collectgarbage('count'))
 
 The results (ran on a Core2 P8600, with luajit-2.1.0-beta2):
 
-Memory usage, as reported by `garbagecollect('count')`:
+Memory usage, as reported by `collectgarbage('count')`:
 
-![Memory usage (KB)](https://github.com/limadm/lua-oo/raw/master/tests/plots/mem.png)
+![Memory usage (KB)](tests/plots/mem.png)
 
 CPU user time, as reported by `time -p ...`.  
 Note: I ignored system time to see what is running in Lua side
 without allocation, I/O and context switches.
 
-![CPU time (s)](https://github.com/limadm/lua-oo/raw/master/tests/plots/cpu.png)
+![CPU time (s)](tests/plots/cpu.png)
 
-Oops crashed for N >= 200, and middleclass took more than 1h for
+`Oops` crashed for N >= 200, and `middleclass` took more than 1h for
 N >= 400, so they were out of these instances.
+
+Analyzing these results, we see three classes:
+
+1. `middleclass` and `oops` using less memory but more cpu;
+2. `class`, `classy` and `oo` using less cpu but more memory;
+3. `microlight` and `penlight` in between, balancing cpu and memory usage.
+
+That said, for now I personally prefer `microlight` or `penlight`
+for memory-constrained targets (e.g. Raspberry Pi) and `class`,
+`classy` or `oo` for desktop targets or server back-ends.
 
 ---
 
