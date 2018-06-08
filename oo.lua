@@ -46,9 +46,10 @@ local function extend(base,...)
 	T.extend  = extend
 	T.__index = T
 	-- test if object is an instance of class (or any subclass)
-	function T:is_a(class)
+	function T:is(class)
 		return types[T][class]
 	end
+	T.is_a = T.is
 	local Tmt = {
 		__call  = new,
 		__index = base
