@@ -16,7 +16,7 @@ overwritten if used for something else.
 
 Example usage:
 
-```
+```lua
 	class = require 'oo'
 
 	Product = class()
@@ -67,6 +67,53 @@ Example usage:
 	= c:is_a(Bicycle)     -- true
 	= c:is_a(Motorcycle)  -- true
 ```
+
+There are other interesting alternatives in luarocks, so I have
+microbenchmarked them all. This test does NOT represent an 
+real-world class hierarchy, but helps to compare some of the
+library overhead and therefore helped me to improve lua-oo.
+Anyway, the test is something like:
+
+```lua
+local class = require 'oo'
+local n = 0
+local N = 100
+
+--create a base class
+local c = { class() }
+
+--create a deep chain of subclasses
+for i=2,N do
+	c[i] = c[i-1]:extend()
+end
+
+--create many random objects and count instances of all classes
+for i=1,N*N do
+	local obj = c[math.random(N)]()
+	for j=1,N do
+		if obj:is_a(c[j]) then
+			n = n + 1
+		end
+	end
+end
+
+print(n, collectgarbage('count'))
+```
+
+The results (ran on a Core2 P8600, with luajit-2.1.0-beta2):
+
+Memory usage, as reported by `garbagecollect('count')`:
+
+![Memory usage (KB)](https://github.com/limadm/lua-oo/raw/master/tests/plots/mem.png)
+
+CPU user time, as reported by `time -p ...`.  
+Note: I ignored system time to see what is running in Lua side
+without allocation, I/O and context switches.
+
+![CPU time (s)](https://github.com/limadm/lua-oo/raw/master/tests/plots/cpu.png)
+
+Oops crashed for N >= 200, and middleclass took more than 1h for
+N >= 400, so they were out of these instances.
 
 ---
 
