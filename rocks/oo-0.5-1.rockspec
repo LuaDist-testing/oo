@@ -1,17 +1,9 @@
--- This file was automatically generated for the LuaDist project.
-
 package = 'oo'
-version = '0.4-1'
--- LuaDist source
+version = '0.5-1'
 source = {
-  tag = "0.4-1",
-  url = "git://github.com/LuaDist-testing/oo.git"
+	url = 'git://github.com/limadm/lua-oo.git',
+	tag = '0.5'
 }
--- Original source
--- source = {
--- 	url = 'git://github.com/limadm/lua-oo.git',
--- 	tag = '0.4'
--- }
 description = {
 	summary = 'Pure Lua classes with multiple inheritance',
 	detailed = [[
